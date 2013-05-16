@@ -1,0 +1,117 @@
+***7z x -aos -o/output/directory -pdefault /path/to/compessed/file -r -- '*'
+
+gunzip Archive.pax.gz
+pax -rvf Archive.pax
+
+*http://netcologne.dl.sourceforge.net/project/peazip/4.9.1/peazip_portable-4.9.1.LINUX.GTK2.tar.gz
+
+*dmg2img
+
+*7z
+
+http://www.mosync.com/content/what-missing-fully-functioning-linux-version-mosync-dev-tools-please-outline-issues
+
+64bit has some more issues due to jvm. I didnt proceed further on 64bit. Here is the list for 32bit. 
+
+Here is the list of commands and manual interactions I did to make things work for me. Attached 2 patch fine one is for gcc and other is for mosync.
+
+mkdir $HOME/mosync
+
+export MOSYNCDIR=$HOME/mosync
+
+sudo apt-get install build-essential gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev libexpat1-dev libbluetooth3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libfreeimage-dev gperf libssl-dev git libwebkitgtk-1.0-0
+
+mkdir $MOSYNCDIR/bin
+
+mkdir -p $MOSYNCDIR/libexec/gcc/mapip/3.4.6
+
+mkdir $MOSYNCDIR/src
+
+cd $MOSYNCDIR/src
+
+git clone git://github.com/MoSync/gcc.git gcc_trunk
+
+ 
+
+# Apply gcc patch
+
+ 
+
+cd $MOSYNCDIR/src/gcc_trunk
+
+./configure-linux.sh
+
+cd build/gcc
+
+make
+
+ 
+
+cp gcc/xgcc gcc/cpp $MOSYNCDIR/bin
+
+ 
+
+# Download mosync nightly build and extract mosync code to $MOSYNCDIR/src/mosync_trunk
+
+# Apply mosync patch
+
+ 
+
+cd %MOSYNCDIR/src/mosync-trunk/
+
+./workfile.rb CONFIG="debug"
+
+./workfile.rb CONFIG=""
+
+ 
+
+cd $MOSYNCDIR/src/
+
+ 
+
+git clone -b ThreeTwoOne git://github.com/MoSync/Eclipse.git eclipse_321
+
+ 
+
+# Download http://www.mosync.com/down/target-platform.zip and copy to target-platform.zip  com.mobilesorcery.sdk.product/build/
+
+ 
+
+cd com.mobilesorcery.sdk.product/build
+
+ 
+
+ant release
+
+cd buildresult/
+
+cd I.MoSync/
+
+cd MoSync-linux.gtk.x86-unzipped/
+
+ 
+
+chmod +x mosync
+
+ 
+
+# Copy profiles/ from windows installation of same nightly build of mosync to $MOSYNCDIR/. (It should match exactly same version of windows and mosync you compiled.)
+
+# For some reason, BlackBerry directory under profiles/platforms/ and profiles/vendors doesnt seems to be working. It should be deleted in order to make MoSync IDE work.
+
+# Since, I'm not a concern about BlackBerry I have removed them from my profiles directory.
+
+ 
+
+#### At this point, mosync IDE should come up fine and MoRE emulator should be working fine.
+
+ 
+
+# For real android, this is what I have done and worked fine for me in Galaxy S2.
+
+# I copied aapt,zipalign from "http://dl.google.com/android/adt/adt-bundle-linux-x86-20130219.zip". Made softlink for unzip to /usr/bin/unzip.
+
+http://www.mosync.com/files/mosync_patch.txt
+http://www.mosync.com/files/gcc_patch.txt
+
+http://www.mosync.com/nightly/MoSyncOSX-130307-1441.dmg
