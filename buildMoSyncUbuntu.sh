@@ -1,16 +1,18 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
 #See http://www.mosync.com/content/what-missing-fully-functioning-linux-version-mosync-dev-tools-please-outline-issues
 
 mosyncHomePage="http://www.mosync.com"
 mosyncNightly="/nightly-builds"
 
-mosyncGCCGitProjName=gcc_trunk
+mosyncGCCGitProjName=mosyn_gcc
 
 mosyncIDEGitURL="git://github.com/MoSync/MoSync.git"
 
 #Install any tools we need
-#sudo apt-get install gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev libexpat1-dev libbluetooth3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libfreeimage-dev gperf libssl-dev git p7zip-full html-xml-utils libwebkitgtk-1.0-0 build-essential 
+sudo apt-get install gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev libexpat1-dev libbluetooth3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libfreeimage-dev gperf libssl-dev git p7zip-full html-xml-utils libwebkitgtk-1.0-0 build-essential 
 
 #Determine the OS architecture (32/64bit) using 'uname -m', then run the required commands (see http://stackoverflow.com/a/106416/304330)
 ourArch=$(uname -m)
@@ -81,7 +83,8 @@ pushd "$gccBuildDir"
 git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
 
 pushd ./"$mosyncGCCGitProjName"
-#***TASK -> APPLY GCC PATCH!!!***
+#APPLY GCC PATCH
+patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 ./configure-linux.sh
 pushd build/gcc
 make
@@ -111,7 +114,7 @@ do
 	
 	else
 	  # 32-bit tasks here
-fi
+	fi
 done
 
 
