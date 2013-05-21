@@ -18,13 +18,13 @@ sudo apt-get install gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev l
 ourArch=$(uname -m)
 
 #Various build and install directory definitions
-baseDir=/tmp
-gccBuildDir="$baseDir"/mosyncBuild/gcc
-mosyncBuildDir="$baseDir"/mosyncBuild/mosync
-eclipeBuildDir="$baseDir"/mosyncBuild/eclipse
-installDir="$HOME"/mosync
-installBinDir=$installDir/bin
-installGCCDir=$installDir/libexec/gcc/mapip/3.4.6
+mosyncDir="$HOME"/mosync
+mosyncSrcDir="$mosyncDir"/src
+gccBuildDir="mosyncSrcDir"/gcc
+mosyncBuildDir="mosyncSrcDir"/mosync
+eclipeBuildDir="mosyncSrcDir"/eclipse
+installBinDir=$mosyncDir/bin
+installGCCDir=$mosyncDir/libexec/gcc/mapip/3.4.6
 
 selectedMoSyncSDKBranch="ThreeTwoOne"
 
@@ -71,7 +71,7 @@ function funcBuildGCC() {
 	mkdir -p "$installBinDir"
 	mkdir -p "$installGCCDir"
 
-	export MOSYNCDIR="$installDir"
+	export MOSYNCDIR="$mosyncDir"
 
 	#Let's build MoSync GCC from GitHub
 	mkdir -p "$gccBuildDir"
@@ -79,7 +79,7 @@ function funcBuildGCC() {
 	git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
 
 	pushd ./"$mosyncGCCGitProjName"
-	#APPLY GCC PATCH
+	#APPLY GCC PATCH (re: Sudarais)
 	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 	./configure-linux.sh
 	pushd build/gcc
@@ -96,40 +96,39 @@ function funcBuildGCC() {
 	#---End MoSync GCC build 
 }
 
+function funcBuildMoSyncTools {
+	if [ $ourArch == 'x86_64' ]; then
+	  # Any 64-bit tasks here
+	else
+	  # Any 32-bit tasks here
+	fi
+
+	#APPLY SDK PATCH (re: Sudarais)
+	patch -p1 < "$SCRIPT_DIR"/patches/mosync_patch.txt
+
+	#Continue standard/outlined MoSync-SDK-on-Ubuntu build steps
+}
+
+function funcBuildMoSyncEclipse {
+	if [ $ourArch == 'x86_64' ]; then
+	  # Any 64-bit tasks here
+	  #Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
+	  #See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
+	fi
+
+	#Continue standard/outlined MoSync-Eclipse-on-Ubuntu build steps
+}
+
 #Resolve the latest MoSync Windows Nightly bundle EXE (We'll extract device profiles from it, later)
 #bundle extension are '.exe'=>Windows, '.b2z'=>Linux '.dmg'=>Mac
 latestNightlyBundleURL=$(funcLatestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".exe")
 
 #echo $latestNightlyBundleURL
 
-#Gather a list of MoSync's remote Git branches
-mosyncBranches=$(git ls-remote "$mosyncIDEGitURL" | grep -i heads | awk -F'/' '{print $NF}')
-
-PS3="Please chose a MoSync SDK Git branch to build or leave empty for default [$selectedMoSyncSDKBranch])"
-select chosenBranch in $mosyncBranches;
-do
-	case "$REPLY" in
-
-		$(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
-		*) echo "Invalid option. Try another one.";continue;;
-
-	esac
-
-	selectedMoSyncSDKBranch=$chosenBranch
-	echo You chose $selectedMoSyncSDKBranch
-done
-
-if [ $ourArch == 'x86_64' ]; then
-  # 64-bit tasks here
-  #Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
-  #See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
-
-else
-  # 32-bit tasks here
-fi
-
-#Build GCC - call buildGCC() function
+#Build MoSync GCC/SDK/Eclipse - call various functions
 funcBuildGCC
+funcBuildMoSyncTools
+funcBuildMoSyncEclipse
 
 
 
