@@ -26,9 +26,11 @@ installDir="$HOME"/mosync
 installBinDir=$installDir/bin
 installGCCDir=$installDir/libexec/gcc/mapip/3.4.6
 
+selectedMoSyncSDKBranch="ThreeTwoOne"
+
 
 #Function to determine latestMoSyncNightlyBundleURL <nightly-page-url> <file-suffix>
-function latestMoSyncNightlyBundleURL() {
+function funcLatestMoSyncNightlyBundleURL() {
 	local mosyncNightlyURL=$1
 	local mosyncBundleSuffix=$2
 
@@ -62,60 +64,73 @@ function latestMoSyncNightlyBundleURL() {
 	echo $resolvedMosyncNightlyURL
 }
 
+function funcBuildGCC() {
+	#---Start MoSync GCC build
+
+	#Create MoSync Install/Build directories - See http://www.mosync.com/documentation/manualpages/building-mosync-source-linux
+	mkdir -p "$installBinDir"
+	mkdir -p "$installGCCDir"
+
+	export MOSYNCDIR="$installDir"
+
+	#Let's build MoSync GCC from GitHub
+	mkdir -p "$gccBuildDir"
+	pushd "$gccBuildDir"
+	git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
+
+	pushd ./"$mosyncGCCGitProjName"
+	#APPLY GCC PATCH
+	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
+	./configure-linux.sh
+	pushd build/gcc
+	make
+
+	#Move MoSync's built gcc etc. to the MoSync install
+	#Compilation may have failed when trying to build libgcc - this *is* OK - for the build scripts to find MoSync GCC it has to be moved to the installation directory
+	cp gcc/xgcc gcc/cpp $MOSYNCDIR/bin
+	cp gcc/cc1 gcc/cc1plus $MOSYNCDIR/libexec/gcc/mapip/3.4.6/
+
+	#pop all dirs
+	dirs -c
+
+	#---End MoSync GCC build 
+}
 
 #Resolve the latest MoSync Windows Nightly bundle EXE (We'll extract device profiles from it, later)
 #bundle extension are '.exe'=>Windows, '.b2z'=>Linux '.dmg'=>Mac
-latestNightlyBundleURL=$(latestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".exe")
+latestNightlyBundleURL=$(funcLatestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".exe")
 
 #echo $latestNightlyBundleURL
-
-#---Start MoSync GCC build
-
-#Create MoSync Install/Build directories - See http://www.mosync.com/documentation/manualpages/building-mosync-source-linux
-mkdir -p "$installBinDir"
-mkdir -p "$installGCCDir"
-
-export MOSYNCDIR="$installDir"
-
-#Let's build MoSync GCC from GitHub
-mkdir -p "$gccBuildDir"
-pushd "$gccBuildDir"
-git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
-
-pushd ./"$mosyncGCCGitProjName"
-#APPLY GCC PATCH
-patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
-./configure-linux.sh
-pushd build/gcc
-make
-
-#Move MoSync's built gcc etc. to the MoSync install
-#Compilation may have failed when trying to build libgcc - this *is* OK - for the build scripts to find MoSync GCC it has to be moved to the installation directory
-cp gcc/xgcc gcc/cpp $MOSYNCDIR/bin
-cp gcc/cc1 gcc/cc1plus $MOSYNCDIR/libexec/gcc/mapip/3.4.6/
-
-#pop all dirs
-dirs -c
-
-#---End MoSync GCC build 
 
 #Gather a list of MoSync's remote Git branches
 mosyncBranches=$(git ls-remote "$mosyncIDEGitURL" | grep -i heads | awk -F'/' '{print $NF}')
 
+PS3="Please chose a MoSync SDK Git branch to build or leave empty for default [$selectedMoSyncSDKBranch])"
 select chosenBranch in $mosyncBranches;
 do
-	echo You chose $chosenBranch
-	break
-	
-	if [ $ourArch == 'x86_64' ]; then
-	  # 64-bit tasks here
-	  #Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
-	  #See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
-	
-	else
-	  # 32-bit tasks here
-	fi
+	case "$REPLY" in
+
+		$(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
+		*) echo "Invalid option. Try another one.";continue;;
+
+	esac
+
+	selectedMoSyncSDKBranch=$chosenBranch
+	echo You chose $selectedMoSyncSDKBranch
 done
+
+if [ $ourArch == 'x86_64' ]; then
+  # 64-bit tasks here
+  #Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
+  #See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
+
+else
+  # 32-bit tasks here
+fi
+
+#Build GCC - call buildGCC() function
+funcBuildGCC
+
 
 
 
