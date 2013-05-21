@@ -20,9 +20,9 @@ ourArch=$(uname -m)
 #Various build and install directory definitions
 mosyncDir="$HOME"/mosync
 mosyncSrcDir="$mosyncDir"/src
-gccBuildDir="mosyncSrcDir"/gcc
-mosyncBuildDir="mosyncSrcDir"/mosync
-eclipeBuildDir="mosyncSrcDir"/eclipse
+gccBuildDir="$mosyncSrcDir"/gcc
+mosyncBuildDir="$mosyncSrcDir"/mosync
+eclipeBuildDir="$mosyncSrcDir"/eclipse
 installBinDir=$mosyncDir/bin
 installGCCDir=$mosyncDir/libexec/gcc/mapip/3.4.6
 
@@ -96,24 +96,25 @@ function funcBuildGCC() {
 	#---End MoSync GCC build 
 }
 
-function funcBuildMoSyncTools {
+function funcBuildMoSyncTools() {
 	if [ $ourArch == 'x86_64' ]; then
-	  # Any 64-bit tasks here
-	else
-	  # Any 32-bit tasks here
+		# Any 64-bit tasks here
+		# Any 32-bit tasks here
+		echo about to build MoSync tools
 	fi
 
 	#APPLY SDK PATCH (re: Sudarais)
-	patch -p1 < "$SCRIPT_DIR"/patches/mosync_patch.txt
+	#patch -p1 < "$SCRIPT_DIR"/patches/mosync_patch.txt
 
 	#Continue standard/outlined MoSync-SDK-on-Ubuntu build steps
 }
 
-function funcBuildMoSyncEclipse {
+function funcBuildMoSyncEclipse() {
 	if [ $ourArch == 'x86_64' ]; then
-	  # Any 64-bit tasks here
-	  #Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
-	  #See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
+		#Any 64-bit tasks here
+		#Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
+		#See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
+		echo about to build MoSync Eclipse
 	fi
 
 	#Continue standard/outlined MoSync-Eclipse-on-Ubuntu build steps
