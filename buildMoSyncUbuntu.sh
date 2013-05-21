@@ -119,11 +119,13 @@ function funcBuildMoSyncEclipse {
 	#Continue standard/outlined MoSync-Eclipse-on-Ubuntu build steps
 }
 
-#Resolve the latest MoSync Windows Nightly bundle EXE (We'll extract device profiles from it, later)
+#Resolve latest MoSync Linux (.b2z, sdk src code) and Windows (EXE, to extract profiles etc.) Nightly bundles
 #bundle extension are '.exe'=>Windows, '.b2z'=>Linux '.dmg'=>Mac
-latestNightlyBundleURL=$(funcLatestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".exe")
+latestWindowsNightlyBundleURL=$(funcLatestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".exe")
+latestLinuxNightlyBundleURL=$(funcLatestMoSyncNightlyBundleURL "$mosyncHomePage$mosyncNightly" ".b2z")
 
-#echo $latestNightlyBundleURL
+#echo $latestWindowsNightlyBundleURL
+#echo $latestLinuxNightlyBundleURL
 
 #Build MoSync GCC/SDK/Eclipse - call various functions
 funcBuildGCC
