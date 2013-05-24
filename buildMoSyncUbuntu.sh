@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-#See http://www.mosync.com/content/what-missing-fully-functioning-linux-version-mosync-dev-tools-please-outline-issues
+#See http://www.mosync.com/content/what-missing-fully-functioning-linux-version-mosync-dev-tools-please-outline-issues & http://www.mosync.com/documentation/manualpages/building-mosync-source-linux
 
 mosyncHomePage="http://www.mosync.com"
 mosyncNightly="/nightly-builds"
@@ -97,6 +97,27 @@ function funcBuildGCC() {
 }
 
 function funcBuildMoSyncTools() {
+	# Download mosync nightly build and extract mosync code to $MOSYNCDIR/src/mosync_trunk
+	# Apply mosync patch	
+
+	#Download and build nightly version of MoSync/Eclipse
+
+	
+	git clone git://github.com/MoSync/MoSync.git mosync_trunk
+
+	#echo "Now we need to 'wget -c' and 'tar xjzf' $latestLinuxNightlyBundleURL
+	pushd "$installDir"
+	wget -c "$latestLinuxNightlyBundleURL"
+
+	#decompress the binary
+	tar xjzf "$latestLinuxNightlyBundleURL" 
+
+	push "$mosyncSrcDir"/mosync-trunk/
+
+	./workfile.rb CONFIG="debug"
+
+	./workfile.rb CONFIG=""
+
 	if [ $ourArch == 'x86_64' ]; then
 		# Any 64-bit tasks here
 		# Any 32-bit tasks here
@@ -107,6 +128,9 @@ function funcBuildMoSyncTools() {
 	#patch -p1 < "$SCRIPT_DIR"/patches/mosync_patch.txt
 
 	#Continue standard/outlined MoSync-SDK-on-Ubuntu build steps
+
+	#pop all dirs
+	dirs -c
 }
 
 function funcBuildMoSyncEclipse() {
