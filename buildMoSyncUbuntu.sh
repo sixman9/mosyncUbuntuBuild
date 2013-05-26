@@ -25,6 +25,8 @@ installGCCDir=$mosyncDir/libexec/gcc/mapip/3.4.6
 
 selectedMoSyncSDKBranch="ThreeTwoOne"
 
+toolsBuildUseGit=true
+
 
 #Function to determine FindLatestMoSyncNightlyBundleURL <nightly-page-url> <file-suffix>
 function funcFindLatestMoSyncNightlyBundleURL() {
@@ -109,25 +111,31 @@ function funcBuildGCC() {
 }
 
 function funcBuildMoSyncTools() {
+	#Build Mosync tools, either from the nigtlys or git
 
-	# Download mosync nightly build and extract mosync code to $MOSYNCDIR/src/mosync_trunk
-	# Apply mosync patch	
-
-	#Download and build nightly version of MoSync/Eclipse
-
-	
-	#git clone git://github.com/MoSync/MoSync.git mosync_trunk
-
-	#echo "Now we need to 'wget -c' and 'tar xjzf' $latestLinuxNightlyBundleURL
 	pushd "$mosyncBuildDir"
-	wget -c "$latestLinuxNightlyBundleURL"
 
-	#decompress the nightly, get the filename from the nightly URL
-	local filename=$(echo "$latestLinuxNightlyBundleURL" | awk -F'/' '{print $NF}')
-	#echo "$filename"
-	tar xjf ./"$filename" 
+	if [ ! "$toolsBuildUseGit" ]
+	then 
+		#Download and build nightly version of MoSync/Eclipse
+		#echo "Now we need to 'wget -c' and 'tar xjzf' $latestLinuxNightlyBundleURL
+		wget -c "$latestLinuxNightlyBundleURL"
 
-	pushd "$mosyncBuildDir"/MoSync-trunk/
+		#decompress the nightly, get the filename from the nightly URL
+		local filename=$(echo "$latestLinuxNightlyBundleURL" | awk -F'/' '{print $NF}')
+		#echo "$filename"
+		tar xjf ./"$filename"
+
+		pushd "$mosyncBuildDir"/MoSync-trunk/
+	else
+		#Use the git-based tools repo
+		if [ ! -d "$mosyncBuildDir"/MoSync-trunk-git ]
+		then
+			git clone git://github.com/MoSync/MoSync.git MoSync-trunk-git
+		fi
+
+		pushd "$mosyncBuildDir"/MoSync-trunk-git/
+	fi
 
 	#APPLY SDK PATCH (re: Sudarais)
 	patch -p1 < "$SCRIPT_DIR"/patches/mosync_patch.txt
