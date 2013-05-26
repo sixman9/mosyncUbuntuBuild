@@ -95,7 +95,7 @@ function funcBuildGCC() {
 	#Let's build MoSync GCC from GitHub
 	pushd "$gccBuildDir"/"$mosyncGCCGitProjName"
 	#APPLY GCC PATCH (re: Sudarais)
-	#patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
+	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 	./configure-linux.sh
 	pushd build/gcc
 	make
@@ -124,7 +124,7 @@ function funcBuildMoSyncTools() {
 
 	#decompress the nightly, get the filename from the nightly URL
 	local filename=$(echo "$latestLinuxNightlyBundleURL" | awk -F'/' '{print $NF}')
-	echo "$filename"
+	#echo "$filename"
 	tar xjf ./"$filename" 
 
 	pushd "$mosyncBuildDir"/MoSync-trunk/
