@@ -64,7 +64,7 @@ function funcFindLatestMoSyncNightlyBundleURL() {
 function funcInit() {
 
 	#Install any tools we need
-	sudo apt-get install gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev libexpat1-dev libbluetooth3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libfreeimage-dev gperf libssl-dev git p7zip-full html-xml-utils libwebkitgtk-1.0-0 build-essential 
+	sudo apt-get install gcc g++ bison flex ruby rake subversion rpm libgtk2.0-dev libexpat1-dev libbluetooth3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libfreeimage-dev gperf libssl-dev git p7zip-full html-xml-utils libwebkitgtk-1.0-0 build-essential libglew1.6-dev lib32z1-dev zlib1g-dev:i386
 
 }
 
@@ -95,7 +95,7 @@ function funcBuildGCC() {
 	#Let's build MoSync GCC from GitHub
 	pushd "$gccBuildDir"/"$mosyncGCCGitProjName"
 	#APPLY GCC PATCH (re: Sudarais)
-	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
+	#patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 	./configure-linux.sh
 	pushd build/gcc
 	make
@@ -175,7 +175,7 @@ latestLinuxNightlyBundleURL=$(funcFindLatestMoSyncNightlyBundleURL "$mosyncHomeP
 #exit 0
 
 #Build MoSync GCC/SDK/Eclipse - call various functions
-#funcInit
+funcInit
 funcInitDirs
 #funcDownloadGCCSrc
 #funcBuildGCC
