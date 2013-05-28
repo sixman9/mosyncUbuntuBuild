@@ -85,17 +85,21 @@ function funcInitDirs() {
 	export MOSYNCDIR="$mosyncDir"
 }
 
-function funcDownloadGCCSrc() {
-
-	pushd "$gccBuildDir"
-	git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
-}
-
 function funcBuildGCC() {
+
+	if [! -d "$gccBuildDir"/"$mosyncGCCGitProjName" ]
+	then
+		pushd "$gccBuildDir"
+		git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
+	fi
+
+
 	#---Start MoSync GCC build
 
 	#Let's build MoSync GCC from GitHub
 	pushd "$gccBuildDir"/"$mosyncGCCGitProjName"
+	git pull
+	
 	#APPLY GCC PATCH (re: Sudarais)
 	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 	./configure-linux.sh
@@ -185,7 +189,6 @@ latestLinuxNightlyBundleURL=$(funcFindLatestMoSyncNightlyBundleURL "$mosyncHomeP
 #Build MoSync GCC/SDK/Eclipse - call various functions
 funcInit
 funcInitDirs
-#funcDownloadGCCSrc
 #funcBuildGCC
 funcBuildMoSyncTools
 #funcBuildMoSyncEclipse
