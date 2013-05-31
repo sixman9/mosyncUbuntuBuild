@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Determine the OS architecture (32/64bit) using 'uname -m', then run the required commands (see http://stackoverflow.com/a/106416/304330)
+ourArch=$(uname -m)
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 #See http://www.mosync.com/content/what-missing-fully-functioning-linux-version-mosync-dev-tools-please-outline-issues & http://www.mosync.com/documentation/manualpages/building-mosync-source-linux
@@ -7,12 +10,19 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 mosyncHomePage="http://www.mosync.com"
 mosyncNightly="/nightly-builds"
 
-mosyncGCCGitProjName=mosyn_gcc
+#One-time 32/64-bit configurations
+if [ $ourArch == 'x86_64' ]
+then
+	#64-bit
+	mosyncGCCGitProjDirName=mosyn_gcc-64
+	gccGitURL="git://github.com/fredrikeldh/MoSync-gcc3.git" 
+else
+	#32-bit
+	mosyncGCCGitProjDirName=mosyn_gcc
+	gccGitURL="git://github.com/MoSync/gcc.git"
+fi
 
 mosyncIDEGitURL="git://github.com/MoSync/MoSync.git"
-
-#Determine the OS architecture (32/64bit) using 'uname -m', then run the required commands (see http://stackoverflow.com/a/106416/304330)
-ourArch=$(uname -m)
 
 #Various build and install directory definitions
 mosyncDir="$HOME"/mosync
@@ -25,7 +35,7 @@ installGCCDir=$mosyncDir/libexec/gcc/mapip/3.4.6
 
 selectedMoSyncSDKBranch="ThreeTwoOne"
 
-toolsBuildUseGit=true
+toolsBuildUseGit=false
 
 
 #Function to determine FindLatestMoSyncNightlyBundleURL <nightly-page-url> <file-suffix>
@@ -85,17 +95,22 @@ function funcInitDirs() {
 	export MOSYNCDIR="$mosyncDir"
 }
 
-function funcDownloadGCCSrc() {
-
-	pushd "$gccBuildDir"
-	git clone git://github.com/MoSync/gcc.git "$mosyncGCCGitProjName"
-}
-
 function funcBuildGCC() {
+
+	if [ ! -d "$gccBuildDir"/"$mosyncGCCGitProjDirName" ]
+	then
+		pushd "$gccBuildDir"
+
+		#Git clone the resolved 32/64bit GCC version
+		git clone "$gccGitURL" "$mosyncGCCGitProjDirName"
+	fi
+
 	#---Start MoSync GCC build
 
-	#Let's build MoSync GCC from GitHub
-	pushd "$gccBuildDir"/"$mosyncGCCGitProjName"
+	#Let's update and build MoSync GCC from GitHub
+	pushd "$gccBuildDir"/"$mosyncGCCGitProjDirName"
+	git pull
+
 	#APPLY GCC PATCH (re: Sudarais)
 	patch -p1 < "$SCRIPT_DIR"/patches/gcc_patch.txt
 	./configure-linux.sh
@@ -185,8 +200,7 @@ latestLinuxNightlyBundleURL=$(funcFindLatestMoSyncNightlyBundleURL "$mosyncHomeP
 #Build MoSync GCC/SDK/Eclipse - call various functions
 funcInit
 funcInitDirs
-#funcDownloadGCCSrc
-#funcBuildGCC
+funcBuildGCC
 funcBuildMoSyncTools
 #funcBuildMoSyncEclipse
 funcCleanUp
