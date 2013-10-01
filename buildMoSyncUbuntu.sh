@@ -178,14 +178,40 @@ function funcCleanUp() {
 }
 
 function funcBuildMoSyncEclipse() {
+
+	pushd "mosyncSrcDir"
+
+	#Git clone the required Eclipse MoSync branch
+	#git clone -b ThreeTwoOne git://github.com/MoSync/Eclipse.git
+	git clone -b ThreeThreeOne git://github.com/MoSync/Eclipse.git
+
+	pushd Eclipse
+
 	if [ $ourArch == 'x86_64' ]; then
 		#Any 64-bit tasks here
 		#Apply 64-bit patch to mosync (https://github.com/fredrikeldh/Eclipse/commit/c059d516e0e89ed4308f27cdc03229ec01fde740)
 		#See http://blog.mhartl.com/2008/07/01/using-git-to-pull-in-a-patch-from-a-single-commit
-		echo about to build MoSync Eclipse
+
+		#Add the Git remote we want the patch from, the update/fetch our local info about it
+		git add remote fredrikeldh https://github.com/fredrikeldh/Eclipse
+		git fetch fredrikeldh
+
+		git cherry-pick c059d516e0e89ed4308f27cdc03229ec01fde740
 	fi
 
 	#Continue standard/outlined MoSync-Eclipse-on-Ubuntu build steps
+	echo about to build MoSync Eclipse
+
+	#Download http://www.mosync.com/down/target-platform.zip to directory 'com.mobilesorcery.sdk.product/build'
+	pushd com.mobilesorcery.sdk.product/build
+	wget http://www.mosync.com/down/target-platform.zip
+
+	#ant build (java-make equivalent) MoSync-Eclipse
+	ant release
+
+	#Move to the ant build's output directory, then make the Eclipse binary executable
+	pushd buildresult/I.MoSync/MoSync-linux.gtk.x86-unzipped/mosync
+ 	chmod +x mosync
 }
 
 #Resolve latest MoSync Linux (.b2z, sdk src code) and Windows (EXE, to extract profiles etc.) Nightly bundles
@@ -202,7 +228,7 @@ funcInit
 funcInitDirs
 funcBuildGCC
 funcBuildMoSyncTools
-#funcBuildMoSyncEclipse
+funcBuildMoSyncEclipse
 funcCleanUp
 
 
