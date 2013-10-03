@@ -115,3 +115,12 @@ http://www.mosync.com/files/mosync_patch.txt
 http://www.mosync.com/files/gcc_patch.txt
 
 http://www.mosync.com/nightly/MoSyncOSX-130307-1441.dmg
+
+#Misc - How to Split camel-case with a sed-regex in Bash, to seperate the Branch description, e.g. ThreeThreeTwo -> Three Three Two (see http://stackoverflow.com/questions/614930/how-can-i-cut1-camelcase-words)
+echo "aCertainCamelCasedWord" | sed 's/\([A-Z]\)/ \1/g'
+
+#Turn textual numbers into integer with Bash, e.g. Three => 3
+units -t <textual-number> (e.g. units -t three)
+
+
+
