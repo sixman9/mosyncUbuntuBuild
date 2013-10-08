@@ -122,5 +122,11 @@ echo "aCertainCamelCasedWord" | sed 's/\([A-Z]\)/ \1/g'
 #Turn textual numbers into integer with Bash, e.g. Three => 3
 units -t <textual-number> (e.g. units -t three)
 
+#Shell command to sum integers, one per line
+#See http://stackoverflow.com/questions/450799/shell-command-to-sum-integers-one-per-line
+awk '{s+=$1} END {print s}' mydatafile <- http://stackoverflow.com/a/450821/304330
+you cat file.csv | cut -d, -f3 | awk '{s+=$1} END {print s}' <- can also pipe the data to awk 
+paste -sd+ infile|bc <- http://stackoverflow.com/a/451204/304330
+
 
 
