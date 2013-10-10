@@ -62,7 +62,7 @@ function funcInstallTools() {
 }
 
 #Run the Tools install, early
-#funcInstallTools
+funcInstallTools
 
 function funcDownloadMosyncTools() {
 	#Build Mosync tools, either from the nigtlys or git
@@ -91,6 +91,10 @@ function funcDownloadMosyncTools() {
 		#Rename the untarred directories
 		mv ./MoSync-trunk ./"$mosyncDirName"
 		mv ./Eclipse "$MOSYNCDIR"/"$eclipseDirName"
+
+		#Git-initialise the bundle-extracted Eclipse directory, in case we need to Git-cherry-pick patches, later
+		pushd "$MOSYNCDIR"/"$eclipseDirName"
+		git init
 	fi
 }
 
